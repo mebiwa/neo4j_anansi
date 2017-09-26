@@ -1,0 +1,106 @@
+#Anansi Graph
+
+//Save source files in /Documents/Neo4J/default.graphdb/import
+
+// Create suppliers
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///suppliers.csv" AS row
+CREATE (:Supplier {supplierID: row.SupplierID, supplierName: row.SupplierName,  town: row.SupplierTown, region: row.SupplierRegion});
+
+// Create assembly
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///assembly.csv" AS row
+CREATE (:Assembly {assemblyID: row.AssemblyID, assemblyName: row.AssemblyName,  town: row.AssemblyTown, region: row.AssemblyRegion});
+
+// Create products
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///products.csv" AS row
+CREATE (:Product {productID: row.ProductID, productName: row.ProductName,  productType: row.ProductType, unitPrice: toFloat(row.UnitPrice)});
+
+// Create customers
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///customers.csv" AS row
+CREATE (:Customer {customerID: row.CustomerID, customerName: row.CustomerName,  town: row.CustomerTown, region: row.CustomerRegion, revenue: row.CustomerRevenue});
+
+//Create indexes
+CREATE INDEX ON :Supplier(supplierID); 
+CREATE INDEX ON :Supplier(supplierName);
+CREATE INDEX ON :Supplier(town);
+
+CREATE INDEX ON :Assembly(assemblyID);
+CREATE INDEX ON :Assembly(assemblyName);
+CREATE INDEX ON :Assembly(town);
+
+CREATE INDEX ON :Product(productID); 
+CREATE INDEX ON :Product(productName);
+
+CREATE INDEX ON :Customer(customerID);
+CREATE INDEX ON :Customer(customerName);
+CREATE INDEX ON :Customer(town);
+
+
+schema await
+
+//Create customer product relationship
+MATCH (p:Product),(c:Customer)
+CREATE (c)-[:BUYS]->(p)
+
+//Create direct product supply relationship
+
+MATCH (i:Product{productName:'straw_set'})
+MERGE (j:Supplier {supplierID: '103'}) 
+MERGE (i)-[:IS_SHIPPED]->(j)
+RETURN i;
+
+MATCH (k:Product{productName:'tumbler_set'})
+MERGE (l:Supplier {supplierID: '104'}) 
+MERGE (k)-[:IS_SHIPPED]->(l)
+RETURN k;
+
+MATCH (h:Product{productName:'cutlery_bowl_set'})
+MERGE (p:Assembly {assemblyName: 'Adstral Limited'}) 
+MERGE (h)-[:IS_SHIPPED]->(p)
+RETURN h;
+
+//Create bundle assembly products
+
+MATCH (e:Supplier {supplierID: '101'}) 
+MERGE (f:Assembly {assemblyName: 'Adstral Limited'}) 
+MERGE (e)-[:SUPPLIES]->(f)
+RETURN f;
+
+
+MATCH (m:Supplier {supplierID: '102'}) 
+MERGE (n:Assembly {assemblyName: 'Adstral Limited'}) 
+MERGE (m)-[:SUPPLIES]->(n)
+RETURN n;
+
+//if there is a fire in Adstral bundling - can quantify impact on customer supply
+
+/// find parts of supply chain the same town
+MATCH (n)
+WHERE n.town STARTS WITH 'Ash'
+RETURN n.ID, n.town
+
+
+// merge public data on weather patterns, property prices into this framework.
+
+
+//use this to support feature selection for loss severity curve of underwriter
+
+
+//To clear all
+MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r
+//To show nodes
+START n=node(*) RETURN n;
+//To show nodes and relationships
+START n=node(*) MATCH (n)-[r]->(m) RETURN n,r,m;
+
+.........
+CREATE INDEX ON :Category(categoryID); 
+
+// Create categories
+USING PERIODIC COMMIT
+LOAD CSV WITH HEADERS FROM "file:///categories.csv" AS row
+CREATE (:Category {categoryID: row.CategoryID, categoryName: row.CategoryName, description: row.Description});
+
