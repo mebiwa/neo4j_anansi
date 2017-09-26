@@ -96,11 +96,3 @@ START n=node(*) RETURN n;
 //To show nodes and relationships
 START n=node(*) MATCH (n)-[r]->(m) RETURN n,r,m;
 
-.........
-CREATE INDEX ON :Category(categoryID); 
-
-// Create categories
-USING PERIODIC COMMIT
-LOAD CSV WITH HEADERS FROM "file:///categories.csv" AS row
-CREATE (:Category {categoryID: row.CategoryID, categoryName: row.CategoryName, description: row.Description});
-
